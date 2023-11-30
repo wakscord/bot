@@ -1,10 +1,21 @@
-from typing import Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import aiohttp
-from discord import Interaction, TextChannel, Webhook
+from discord import Interaction, Member, TextChannel, Webhook
+
+if TYPE_CHECKING:
+    from bot import WakscordBot
 
 
-async def check_manage_permission(interaction: Interaction) -> bool:
+async def check_manage_permission(interaction: Interaction[WakscordBot]) -> bool:
+    assert (
+        isinstance(interaction.channel, TextChannel)
+        and interaction.guild is not None
+        and isinstance(interaction.user, Member)
+    )
+
     if not interaction.channel.permissions_for(interaction.user).manage_channels:
         await interaction.response.send_message(
             "사용자님에게 **채널 관리하기** 권한이 없어요.", ephemeral=True
@@ -36,17 +47,20 @@ async def get_webhook(channel: TextChannel) -> Webhook | None:
         if webhook.user == channel.guild.me:
             return webhook
 
+    return None
 
-async def fetch_subscribe_info(webhook: Webhook) -> Optional[dict]:
+
+async def fetch_subscribe_info(
+    webhook: Webhook,
+) -> dict[str, list[str | None]]:
     key = f"{webhook.id}/{webhook.token}"
 
     async with aiohttp.ClientSession() as session:
         async with session.post(
             f"https://api.wakscord.xyz/hookInfo", json={"keys": [key]}
         ) as response:
-            if response.status != 200:
-                return None
+            response.raise_for_status()
 
-            data = await response.json()
+            data: dict[str, dict[str, list[str | None]]] = await response.json()
 
             return data[key]
