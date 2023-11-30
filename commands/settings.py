@@ -277,7 +277,7 @@ class Settings(commands.Cog):
 
     @group.command(name="변경")
     async def set_settings(self, interaction: discord.Interaction):
-        """왁스코드 웹사이트에서 이 채널의 왁스코드 설정을 변경합니다."""
+        """이 채널의 왁스코드 설정을 웹사이트에서 변경합니다."""
 
         if not await check_manage_permission(interaction):
             return
@@ -296,7 +296,7 @@ class Settings(commands.Cog):
 
     @group.command(name="보기")
     async def show_settings(self, interaction: discord.Interaction):
-        """현재 이 채널의 왁스코드 설정을 보여줍니다."""
+        """이 채널의 알림 설정을 봅니다."""
 
         _, info = await self.get_info(interaction)
 
@@ -320,7 +320,7 @@ class Settings(commands.Cog):
 
     @group.command(name="알림")
     async def set_alert_settings(self, interaction: discord.Interaction):
-        """현재 이 채널의 기타 알림 설정을 변경합니다."""
+        """이 채널의 알림 설정을 변경합니다."""
 
         webhook, info = await self.get_info(interaction, none=False)
         view = MemberSelectView()
@@ -341,7 +341,7 @@ class Settings(commands.Cog):
 
     @group.command(name="채팅")
     async def set_chat_settings(self, interaction: discord.Interaction):
-        """현재 이 채널의 트위치 채팅 알림 설정을 변경합니다."""
+        """이 채널의 트위치 채팅 알림 설정을 변경합니다."""
 
         webhook, info = await self.get_info(interaction, none=False)
         view = MemberSelectView()

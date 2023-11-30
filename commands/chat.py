@@ -75,7 +75,7 @@ class Chat(commands.Cog):
     async def chat_add_member(
         self, interaction: discord.Interaction, streamer: str, member: str
     ):
-        """트위치 채팅의 멤버 필터링에서 멤버를 추가합니다."""
+        """특정 멤버가 입력한 트위치 채팅을 디스코드로 전달 받습니다."""
 
         if not await check_manage_permission(interaction):
             return
@@ -118,7 +118,7 @@ class Chat(commands.Cog):
     async def chat_remove_member(
         self, interaction: discord.Interaction, streamer: str, member: str
     ):
-        """트위치 채팅의 멤버 필터링에 멤버를 제거합니다."""
+        """특정 멤버가 입력한 트위치 채팅을 디스코드로 전달 받지 않습니다."""
 
         if not await check_manage_permission(interaction):
             return

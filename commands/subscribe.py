@@ -52,7 +52,7 @@ class Subscribe(commands.Cog):
 
     @discord.app_commands.command(name="구독")
     async def subscribe(self, interaction: discord.Interaction):
-        """현재 채널에 웹후크를 생성하고, 왁스코드 웹사이트에서 구독을 진행합니다."""
+        """이 채널의 왁스코드 알림을 웹사이트에서 설정합니다."""
 
         if not await check_manage_permission(interaction):
             return

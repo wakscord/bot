@@ -215,7 +215,7 @@ class SpeedSetup(commands.Cog):
 
     @discord.app_commands.command(name="빠른설정")
     async def speed_setup(self, interaction: discord.Interaction):
-        """쉽고 빠르게 왁스코드를 설정합니다."""
+        """쉽고 빠르게 왁스코드 알림을 설정합니다."""
 
         if not await check_manage_permission(interaction):
             return
