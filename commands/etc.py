@@ -1,6 +1,7 @@
 import asyncio
 import random
 
+import aiohttp
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -37,6 +38,30 @@ class Etc(commands.Cog):
         await asyncio.sleep(1)
 
         await msg.edit(content=random.choice([option1, option2]))
+
+    @app_commands.command(name="뱅온정보")
+    async def bangon_info(self, interaction: discord.Interaction):
+        """
+        이세돌 뱅온정보를 보여줍니다.
+        """
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://api.wakscord.xyz/bangon") as resp:
+                data = await resp.json()
+
+        embed = discord.Embed(
+            title=f"{data['info']['date']} 이세돌 뱅온정보",
+            url=f"https://cafe.naver.com/steamindiegame/{data['info']['idx']}",
+            color=0xEC528B,
+        )
+
+        for name, value in data["members"].items():
+            info = "\n\n".join(value["info"]).strip()
+            info = info if info else "\u200b"
+
+            embed.add_field(name=f"{name}: {value['status']}", value=info)
+
+        await interaction.response.send_message(embed=embed)
 
 
 async def setup(bot: commands.Bot):
