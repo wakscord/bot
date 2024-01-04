@@ -1,4 +1,6 @@
-from typing import Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import aiohttp
 import discord
@@ -7,57 +9,81 @@ from discord.ext import commands
 
 from utils import check_manage_permission, fetch_subscribe_info, get_webhook
 
+if TYPE_CHECKING:
+    from typing import Optional
+
+    from discord import Interaction
+    from typing_extensions import Self
+
+    from bot import WakscordBot
+
 
 class MemberSelectView(discord.ui.View):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(timeout=None)
 
-        self.member = None
+        self.member: Optional[str] = None
 
     @discord.ui.button(label="우왁굳", style=discord.ButtonStyle.primary, row=0)
-    async def wak(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def wak(
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         self.member = "우왁굳"
         self.stop()
 
     @discord.ui.button(label="아이네", style=discord.ButtonStyle.primary, row=0)
-    async def ine(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def ine(
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         self.member = "아이네"
         self.stop()
 
     @discord.ui.button(label="징버거", style=discord.ButtonStyle.primary, row=0)
-    async def jing(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def jing(
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         self.member = "징버거"
         self.stop()
 
     @discord.ui.button(label="릴파", style=discord.ButtonStyle.primary, row=1)
-    async def lilpa(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def lilpa(
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         self.member = "릴파"
         self.stop()
 
     @discord.ui.button(label="주르르", style=discord.ButtonStyle.primary, row=1)
-    async def jururu(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def jururu(
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         self.member = "주르르"
         self.stop()
 
     @discord.ui.button(label="고세구", style=discord.ButtonStyle.primary, row=1)
-    async def gosegu(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def gosegu(
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         self.member = "고세구"
         self.stop()
 
     @discord.ui.button(label="비챤", style=discord.ButtonStyle.primary, row=2)
     async def viichan(
-        self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         self.member = "비챤"
         self.stop()
 
     @discord.ui.button(label="뢴트게늄", style=discord.ButtonStyle.primary, row=2)
-    async def rent(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def rent(
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         self.member = "뢴트게늄"
         self.stop()
 
     @discord.ui.button(label="천양", style=discord.ButtonStyle.primary, row=2)
-    async def cheon(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def cheon(
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         self.member = "천양"
         self.stop()
 
@@ -71,7 +97,9 @@ class AlertSelectView(discord.ui.View):
         "왁물원 글 알림": "카페",
     }
 
-    def __init__(self, webhook: discord.Webhook, subs: dict, member: str):
+    def __init__(
+        self, webhook: discord.Webhook, subs: dict[str, list[str | None]], member: str
+    ):
         super().__init__(timeout=None)
 
         self.webhook = webhook
@@ -79,21 +107,22 @@ class AlertSelectView(discord.ui.View):
         self.member = member
 
         for children in self.children:
-            children.style = (
-                discord.ButtonStyle.green
-                if self.map[children.label] in subs[member]
-                else discord.ButtonStyle.secondary
-            )
+            if isinstance(children, discord.ui.Button):
+                children.style = (
+                    discord.ButtonStyle.green
+                    if self.map[children.label or ""] in subs[member]
+                    else discord.ButtonStyle.secondary
+                )
 
     async def edit_subscribe(
-        self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         enable = button.style == discord.ButtonStyle.secondary
 
         if enable:
-            self.subs[self.member].append(self.map[button.label])
+            self.subs[self.member].append(self.map[button.label or ""])
         else:
-            self.subs[self.member].remove(self.map[button.label])
+            self.subs[self.member].remove(self.map[button.label or ""])
 
         async with aiohttp.ClientSession() as session:
             await session.post(
@@ -111,32 +140,32 @@ class AlertSelectView(discord.ui.View):
 
     @discord.ui.button(label="뱅온 알림", style=discord.ButtonStyle.green)
     async def bangon_alert(
-        self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         await self.edit_subscribe(interaction, button)
 
     @discord.ui.button(label="방제 변경 알림", style=discord.ButtonStyle.green)
     async def title_alert(
-        self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         await self.edit_subscribe(interaction, button)
 
     @discord.ui.button(label="유튜브 업로드 알림", style=discord.ButtonStyle.green)
     async def youtube_alert(
-        self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         await self.edit_subscribe(interaction, button)
 
     @discord.ui.button(label="토토 결과 알림", style=discord.ButtonStyle.green)
     async def toto_alert(
-        self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         await self.edit_subscribe(interaction, button)
 
     @discord.ui.button(label="왁물원 글 알림", style=discord.ButtonStyle.green)
     async def waxmuseum_alert(
-        self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         await self.edit_subscribe(interaction, button)
 
 
@@ -176,7 +205,9 @@ class ChatAlertSelectView(discord.ui.View):
         ],
     }
 
-    def __init__(self, webhook: discord.Webhook, subs: dict, member: str):
+    def __init__(
+        self, webhook: discord.Webhook, subs: dict[str, list[str | None]], member: str
+    ) -> None:
         super().__init__(timeout=None)
 
         self.webhook = webhook
@@ -184,22 +215,23 @@ class ChatAlertSelectView(discord.ui.View):
         self.member = member
 
         for children in self.children:
-            children.style = discord.ButtonStyle.green
+            if isinstance(children, discord.ui.Button):
+                children.style = discord.ButtonStyle.green
 
-            for sub in self.map[children.label]:
-                if sub not in subs[member]:
-                    children.style = discord.ButtonStyle.secondary
-                    break
+                for sub in self.map[children.label or ""]:
+                    if sub not in subs[member]:
+                        children.style = discord.ButtonStyle.secondary
+                        break
 
     async def edit_subscribe(
-        self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         enable = button.style == discord.ButtonStyle.secondary
 
         if enable:
-            self.subs[self.member].extend(self.map[button.label])
+            self.subs[self.member].extend(self.map[button.label or ""])
         else:
-            for sub in self.map[button.label]:
+            for sub in self.map[button.label or ""]:
                 self.subs[self.member].remove(sub)
 
         async with aiohttp.ClientSession() as session:
@@ -218,30 +250,35 @@ class ChatAlertSelectView(discord.ui.View):
 
     @discord.ui.button(label="우왁굳", style=discord.ButtonStyle.green)
     async def wakgood(
-        self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         await self.edit_subscribe(interaction, button)
 
     @discord.ui.button(label="이세계아이돌", style=discord.ButtonStyle.green)
-    async def isedol(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def isedol(
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         await self.edit_subscribe(interaction, button)
 
     @discord.ui.button(label="고정 멤버", style=discord.ButtonStyle.green)
-    async def gomem(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def gomem(
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
         await self.edit_subscribe(interaction, button)
 
 
 class Settings(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: WakscordBot):
         self.bot = bot
 
     group = app_commands.Group(name="설정", description="왁스코드 알림 설정")
 
     async def get_info(
-        self, interaction: discord.Interaction, none: bool = False
-    ) -> Optional[dict]:
+        self, interaction: Interaction[WakscordBot], none: bool = False
+    ) -> tuple[Optional[discord.Webhook], Optional[dict[str, list[str | None]]]]:
+        assert isinstance(interaction.channel, discord.TextChannel)
         if not await check_manage_permission(interaction):
-            return
+            return None, None
 
         webhook = await get_webhook(interaction.channel)
 
@@ -250,7 +287,7 @@ class Settings(commands.Cog):
                 "이 채널은 왁스코드에 구독 되어있지 않아요.", ephemeral=True
             )
 
-            return None
+            return None, None
 
         await interaction.response.defer(ephemeral=True, thinking=True)
 
@@ -259,7 +296,7 @@ class Settings(commands.Cog):
         if info is None:
             if none:
                 await interaction.edit_original_response(content="구독 정보가 존재하지 않습니다.")
-                return None
+                return None, None
             else:
                 return webhook, {
                     "우왁굳": [],
@@ -276,9 +313,10 @@ class Settings(commands.Cog):
         return webhook, info
 
     @group.command(name="변경")
-    async def set_settings(self, interaction: discord.Interaction):
+    async def set_settings(self, interaction: Interaction[WakscordBot]) -> None:
         """이 채널의 왁스코드 설정을 웹사이트에서 변경합니다."""
 
+        assert isinstance(interaction.channel, discord.TextChannel)
         if not await check_manage_permission(interaction):
             return
 
@@ -286,7 +324,7 @@ class Settings(commands.Cog):
 
         if webhook is None:
             return await interaction.response.send_message(
-                "이 채널은 왁스코드에 구독 되어있지 않아요.", ephemeral=True
+                "이 채널은 왁스코드에 구독되어 있지 않아요.", ephemeral=True
             )
 
         await interaction.response.send_message(
@@ -295,8 +333,9 @@ class Settings(commands.Cog):
         )
 
     @group.command(name="보기")
-    async def show_settings(self, interaction: discord.Interaction):
+    async def show_settings(self, interaction: Interaction[WakscordBot]) -> None:
         """이 채널의 알림 설정을 봅니다."""
+        assert isinstance(interaction.channel, discord.TextChannel)
 
         _, info = await self.get_info(interaction)
 
@@ -319,20 +358,22 @@ class Settings(commands.Cog):
         await interaction.edit_original_response(embed=embed)
 
     @group.command(name="알림")
-    async def set_alert_settings(self, interaction: discord.Interaction):
+    async def set_alert_settings(self, interaction: Interaction[WakscordBot]) -> None:
         """이 채널의 알림 설정을 변경합니다."""
 
         webhook, info = await self.get_info(interaction, none=False)
         view = MemberSelectView()
+
+        if webhook is None or info is None:
+            return
 
         await interaction.edit_original_response(content="어떤 멤버의 알림을 설정할까요?", view=view)
 
         await view.wait()
 
         if view.member is None:
-            return await interaction.edit_original_response(
-                content="취소되었습니다.", view=None
-            )
+            await interaction.edit_original_response(content="취소되었습니다.", view=None)
+            return
 
         await interaction.edit_original_response(
             content=f"{view.member}의 어떤 알림 카테고리를 켜거나 끌까요?",
@@ -340,11 +381,14 @@ class Settings(commands.Cog):
         )
 
     @group.command(name="채팅")
-    async def set_chat_settings(self, interaction: discord.Interaction):
+    async def set_chat_settings(self, interaction: Interaction[WakscordBot]) -> None:
         """이 채널의 트위치 채팅 알림 설정을 변경합니다."""
 
         webhook, info = await self.get_info(interaction, none=False)
         view = MemberSelectView()
+
+        if webhook is None or info is None:
+            return
 
         await interaction.edit_original_response(
             content="어떤 멤버의 채팅 알림을 설정할까요?", view=view
@@ -353,9 +397,8 @@ class Settings(commands.Cog):
         await view.wait()
 
         if view.member is None:
-            return await interaction.edit_original_response(
-                content="취소되었습니다.", view=None
-            )
+            await interaction.edit_original_response(content="취소되었습니다.", view=None)
+            return
 
         await interaction.edit_original_response(
             content=f"{view.member}의 어떤 채팅 알림 카테고리를 켜거나 끌까요?",
@@ -363,5 +406,5 @@ class Settings(commands.Cog):
         )
 
 
-async def setup(bot: commands.Bot):
+async def setup(bot: WakscordBot) -> None:
     await bot.add_cog(Settings(bot))

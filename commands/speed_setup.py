@@ -1,11 +1,21 @@
+from __future__ import annotations
+
 from enum import Enum
-from typing import Optional
+from typing import TYPE_CHECKING
 
 import aiohttp
 import discord
 from discord.ext import commands
 
 from utils import check_manage_permission
+
+if TYPE_CHECKING:
+    from typing import Optional
+
+    from discord import Interaction
+    from typing_extensions import Self
+
+    from bot import WakscordBot
 
 
 class SpeedSetupMethod(Enum):
@@ -29,7 +39,7 @@ class SubscribeItem(Enum):
 
 
 class SpeedSetupView(discord.ui.View):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self._method = SpeedSetupMethod.ALL
@@ -43,10 +53,10 @@ class SpeedSetupView(discord.ui.View):
             "비챤",
         ]
 
-        self.session: aiohttp.ClientSession = None
+        self.session: Optional[aiohttp.ClientSession] = None
 
     @property
-    def description(self):
+    def description(self) -> str:
         text = "## 왁스코드 빠른 설정\n"
 
         if self._method == SpeedSetupMethod.ALL:
@@ -65,40 +75,49 @@ class SpeedSetupView(discord.ui.View):
         return text
 
     @discord.ui.button(label="한 채널에서 모든 알림 받기", row=0, style=discord.ButtonStyle.green)
-    async def all(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self._method = SpeedSetupMethod.ALL
-        button.style = discord.ButtonStyle.green
+    async def all(
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
+        if interaction.message is not None:
+            self._method = SpeedSetupMethod.ALL
+            button.style = discord.ButtonStyle.green
 
-        self.member.style = discord.ButtonStyle.grey
-        self.detail.style = discord.ButtonStyle.grey
+            self.member.style = discord.ButtonStyle.grey
+            self.detail.style = discord.ButtonStyle.grey
 
-        embed = interaction.message.embeds[0]
-        embed.description = self.description
-        await interaction.response.edit_message(view=self, embed=embed)
+            embed = interaction.message.embeds[0]
+            embed.description = self.description
+            await interaction.response.edit_message(view=self, embed=embed)
 
     @discord.ui.button(label="멤버별로 나눠진 채널에서 알림 받기", row=0)
-    async def member(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self._method = SpeedSetupMethod.MEMBER
-        button.style = discord.ButtonStyle.green
+    async def member(
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
+        if interaction.message is not None:
+            self._method = SpeedSetupMethod.MEMBER
+            button.style = discord.ButtonStyle.green
 
-        self.all.style = discord.ButtonStyle.grey
-        self.detail.style = discord.ButtonStyle.grey
+            self.all.style = discord.ButtonStyle.grey
+            self.detail.style = discord.ButtonStyle.grey
 
-        embed = interaction.message.embeds[0]
-        embed.description = self.description
-        await interaction.response.edit_message(view=self, embed=embed)
+            embed = interaction.message.embeds[0]
+            embed.description = self.description
+            await interaction.response.edit_message(view=self, embed=embed)
 
     @discord.ui.button(label="나눠진 채널을 더 세분화해서 받기", row=0)
-    async def detail(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self._method = SpeedSetupMethod.DETAIL
-        button.style = discord.ButtonStyle.green
+    async def detail(
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
+        if interaction.message is not None:
+            self._method = SpeedSetupMethod.DETAIL
+            button.style = discord.ButtonStyle.green
 
-        self.all.style = discord.ButtonStyle.grey
-        self.member.style = discord.ButtonStyle.grey
+            self.all.style = discord.ButtonStyle.grey
+            self.member.style = discord.ButtonStyle.grey
 
-        embed = interaction.message.embeds[0]
-        embed.description = self.description
-        await interaction.response.edit_message(view=self, embed=embed)
+            embed = interaction.message.embeds[0]
+            embed.description = self.description
+            await interaction.response.edit_message(view=self, embed=embed)
 
     @discord.ui.select(
         placeholder="알림을 받을 스트리머를 선택하세요",
@@ -118,23 +137,24 @@ class SpeedSetupView(discord.ui.View):
         max_values=9,
     )
     async def streamer(
-        self, interaction: discord.Interaction, select: discord.ui.Select
-    ):
-        self._streamers = select.values
+        self, interaction: Interaction[WakscordBot], select: discord.ui.Select[Self]
+    ) -> None:
+        if interaction.message is not None:
+            self._streamers = select.values
 
-        for option in select.options:
-            option.default = option.label in self._streamers
+            for option in select.options:
+                option.default = option.label in self._streamers
 
-        embed = interaction.message.embeds[0]
-        embed.description = self.description
-        await interaction.response.edit_message(view=self, embed=embed)
+            embed = interaction.message.embeds[0]
+            embed.description = self.description
+            await interaction.response.edit_message(view=self, embed=embed)
 
     async def _subscribe(
         self,
         channel: discord.TextChannel,
         streamers: list[str],
         item: Optional[SubscribeItem] = None,
-    ):
+    ) -> None:
         if self.session is None:
             self.session = aiohttp.ClientSession()
 
@@ -168,53 +188,56 @@ class SpeedSetupView(discord.ui.View):
         style=discord.ButtonStyle.blurple,
         row=2,
     )
-    async def done(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.edit_message(
-            view=None, embed=None, content="채널 생성 중..."
-        )
+    async def done(
+        self, interaction: Interaction[WakscordBot], button: discord.ui.Button[Self]
+    ) -> None:
+        if interaction.guild is not None:
+            await interaction.response.edit_message(
+                view=None, embed=None, content="채널 생성 중..."
+            )
 
-        channels: list[discord.TextChannel] = []
+            channels: list[discord.TextChannel] = []
 
-        if self._method == SpeedSetupMethod.ALL:
-            channel = await interaction.guild.create_text_channel("왁스코드")
-            await self._subscribe(channel, self._streamers)
-            channels.append(channel)
-
-        elif self._method == SpeedSetupMethod.MEMBER:
-            for streamer in self._streamers:
-                channel = await interaction.guild.create_text_channel(streamer)
-                await self._subscribe(channel, [streamer])
+            if self._method == SpeedSetupMethod.ALL:
+                channel = await interaction.guild.create_text_channel("왁스코드")
+                await self._subscribe(channel, self._streamers)
                 channels.append(channel)
 
-        elif self._method == SpeedSetupMethod.DETAIL:
-            for streamer in self._streamers:
-                category = await interaction.guild.create_category(streamer)
-                for channel_name, item in (
-                    ("뱅온-방제", SubscribeItem.BANGON_BANGJE),
-                    ("채팅", SubscribeItem.CHAT),
-                    ("알림", SubscribeItem.ALERT),
-                ):
-                    channel = await category.create_text_channel(
-                        f"{streamer}-{channel_name}"
-                    )
-
-                    await self._subscribe(channel, [streamer], item=item)
+            elif self._method == SpeedSetupMethod.MEMBER:
+                for streamer in self._streamers:
+                    channel = await interaction.guild.create_text_channel(streamer)
+                    await self._subscribe(channel, [streamer])
                     channels.append(channel)
 
-        content = "## 왁스코드 구독 완료!\n\n"
+            elif self._method == SpeedSetupMethod.DETAIL:
+                for streamer in self._streamers:
+                    category = await interaction.guild.create_category(streamer)
+                    for channel_name, item in (
+                        ("뱅온-방제", SubscribeItem.BANGON_BANGJE),
+                        ("채팅", SubscribeItem.CHAT),
+                        ("알림", SubscribeItem.ALERT),
+                    ):
+                        channel = await category.create_text_channel(
+                            f"{streamer}-{channel_name}"
+                        )
 
-        for channel in channels:
-            content += f"- {channel.mention}\n"
+                        await self._subscribe(channel, [streamer], item=item)
+                        channels.append(channel)
 
-        await interaction.edit_original_response(content=content)
+            content = "## 왁스코드 구독 완료!\n\n"
+
+            for channel in channels:
+                content += f"- {channel.mention}\n"
+
+            await interaction.edit_original_response(content=content)
 
 
 class SpeedSetup(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: WakscordBot):
         self.bot = bot
 
     @discord.app_commands.command(name="빠른설정")
-    async def speed_setup(self, interaction: discord.Interaction):
+    async def speed_setup(self, interaction: Interaction[WakscordBot]) -> None:
         """쉽고 빠르게 왁스코드 알림을 설정합니다."""
 
         if not await check_manage_permission(interaction):
@@ -227,5 +250,5 @@ class SpeedSetup(commands.Cog):
         await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 
-async def setup(bot: commands.Bot):
+async def setup(bot: WakscordBot) -> None:
     await bot.add_cog(SpeedSetup(bot))

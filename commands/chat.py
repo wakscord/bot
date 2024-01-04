@@ -1,4 +1,6 @@
-import traceback
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import aiohttp
 import discord
@@ -7,35 +9,36 @@ from discord.ext import commands
 
 from utils import check_manage_permission, fetch_subscribe_info, get_webhook
 
+if TYPE_CHECKING:
+    from discord import Interaction
+
+    from bot import WakscordBot
+
 
 class Chat(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: WakscordBot):
         self.bot = bot
-        self.members: list[str] = None
+        self.members: list[str] = []
 
     group = app_commands.Group(name="채팅", description="트위치 채팅 멤버 필터링")
 
-    async def member_autocomplete(self, _: discord.Interaction, input: str):
-        try:
-            if self.members is None:
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(
-                        "https://api.wakscord.xyz/members"
-                    ) as response:
-                        self.members = await response.json()
+    async def member_autocomplete(
+        self, _: Interaction[WakscordBot], input: str
+    ) -> list[app_commands.Choice[str]]:
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://api.wakscord.xyz/members") as response:
+                self.members = await response.json()
 
-            return [
-                app_commands.Choice(name=member, value=member)
-                for member in filter(
-                    lambda member: input == "" or input in member, self.members
-                )
-            ][:25]
-        except Exception as e:
-            traceback.print_exc()
+        return [
+            app_commands.Choice(name=member, value=member)
+            for member in filter(
+                lambda member: input == "" or input in member, self.members
+            )
+        ][:25]
 
     async def edit_subscribe(
         self, webhook: discord.Webhook, streamer: str, member: str, add: bool
-    ):
+    ) -> None:
         subs = await fetch_subscribe_info(webhook)
 
         if add:
@@ -73,10 +76,11 @@ class Chat(commands.Cog):
         member="왁타버스 멤버",
     )
     async def chat_add_member(
-        self, interaction: discord.Interaction, streamer: str, member: str
-    ):
+        self, interaction: Interaction[WakscordBot], streamer: str, member: str
+    ) -> None:
         """특정 멤버가 입력한 트위치 채팅을 디스코드로 전달 받습니다."""
 
+        assert isinstance(interaction.channel, discord.TextChannel)
         if not await check_manage_permission(interaction):
             return
 
@@ -116,10 +120,11 @@ class Chat(commands.Cog):
         member="왁타버스 멤버",
     )
     async def chat_remove_member(
-        self, interaction: discord.Interaction, streamer: str, member: str
-    ):
+        self, interaction: Interaction[WakscordBot], streamer: str, member: str
+    ) -> None:
         """특정 멤버가 입력한 트위치 채팅을 디스코드로 전달 받지 않습니다."""
 
+        assert isinstance(interaction.channel, discord.TextChannel)
         if not await check_manage_permission(interaction):
             return
 
@@ -139,5 +144,5 @@ class Chat(commands.Cog):
         )
 
 
-async def setup(bot: commands.Bot):
+async def setup(bot: WakscordBot) -> None:
     await bot.add_cog(Chat(bot))

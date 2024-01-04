@@ -9,4 +9,4 @@ from bot import WakscordBot
 
 bot = WakscordBot()
 
-bot.run(os.getenv("BOT_TOKEN"))
+bot.run(os.getenv("BOT_TOKEN") or "")
