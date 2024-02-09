@@ -1,17 +1,14 @@
 import os
-from typing import Any, Optional
+from typing import Any
 
 import aiohttp
 import discord
-from discord import app_commands
 from discord.ext import commands
-from discord.ext.commands import errors
-from discord.ext.commands.context import Context
 
 GUILD = discord.Object(id=os.getenv("TEST_GUILD_ID"))
 
 
-class WakscordBot(commands.Bot):
+class WakscordBot(commands.AutoShardedBot):
     def __init__(self):
         super().__init__(
             command_prefix="!",
