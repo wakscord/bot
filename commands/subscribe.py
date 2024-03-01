@@ -21,7 +21,9 @@ class DeleteWebhookView(discord.ui.View):
         self.webhook = webhook
         self.result: DeleteWebhookResult = DeleteWebhookResult.CANCEL
 
-    @discord.ui.button(label="삭제 후 새로 구독하기", style=discord.ButtonStyle.primary, row=0)
+    @discord.ui.button(
+        label="삭제 후 새로 구독하기", style=discord.ButtonStyle.primary, row=0
+    )
     async def delete(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.webhook.delete()
 
@@ -29,7 +31,9 @@ class DeleteWebhookView(discord.ui.View):
 
         self.stop()
 
-    @discord.ui.button(label="무시하고 계속 진행하기", style=discord.ButtonStyle.danger, row=1)
+    @discord.ui.button(
+        label="무시하고 계속 진행하기", style=discord.ButtonStyle.danger, row=1
+    )
     async def dismiss(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ):
@@ -78,7 +82,7 @@ class Subscribe(commands.Cog):
         )
 
         await interaction.edit_original_response(
-            content=f"[여기](<https://wakscord.xyz/?make={webhook.id}/{webhook.token}>)에서 구독을 진행해주세요!",
+            content=f"[여기](<https://old.wakscord.xyz/?make={webhook.id}/{webhook.token}>)에서 구독을 진행해주세요!",
             view=None,
         )
 

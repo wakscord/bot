@@ -65,6 +65,7 @@ class MemberSelectView(discord.ui.View):
 class AlertSelectView(discord.ui.View):
     map = {
         "뱅온 알림": "뱅온",
+        "뱅종 알림": "뱅종",
         "방제 변경 알림": "방제",
         "유튜브 업로드 알림": "유튜브",
         "토토 결과 알림": "토토",
@@ -121,6 +122,12 @@ class AlertSelectView(discord.ui.View):
     ):
         await self.edit_subscribe(interaction, button)
 
+    @discord.ui.button(label="뱅종 알림", style=discord.ButtonStyle.green)
+    async def end_alert(
+        self, interaction: discord.Interaction, button: discord.ui.Button
+    ):
+        await self.edit_subscribe(interaction, button)
+
     @discord.ui.button(label="유튜브 업로드 알림", style=discord.ButtonStyle.green)
     async def youtube_alert(
         self, interaction: discord.Interaction, button: discord.ui.Button
@@ -143,7 +150,7 @@ class AlertSelectView(discord.ui.View):
 class ChatAlertSelectView(discord.ui.View):
     map = {
         "우왁굳": ["우왁굳"],
-        "이세계아이돌": [
+        "이세돌": [
             "아이네",
             "징버거",
             "릴파",
@@ -151,28 +158,43 @@ class ChatAlertSelectView(discord.ui.View):
             "고세구",
             "비챤",
         ],
-        "고정 멤버": [
-            "뢴트게늄",
-            "김치만두번영택사스가",
+        "고멤": [
             "곽춘식",
-            "단답벌레",
-            "새우튀김",
-            "해루석",
-            "미츠네하쿠",
-            "프리터",
-            "독고혜지",
-            "부정형인간",
-            "풍신",
-            "이덕수할아바이",
-            "왁파고",
-            "도파민박사",
-            "캘리칼리데이비슨",
-            "소피아",
             "권민",
-            "융터르",
-            "비즈니스킴",
+            "김치만두번영택사스가",
+            "단답벌레",
+            "도파민 박사",
+            "독고혜지",
+            "뢴트게늄",
+            "부정형인간",
             "비밀소녀",
+            "비즈니스킴",
+            "왁파고",
+            "이덕수 할아바이",
+            "카르나르 융터르",
+            "풍신",
+            "프리터",
+            "해루석",
             "히키킹",
+        ],
+        "교멤": [
+            "닌닌",
+            "데스해머 쵸로키",
+            "미미짱짱세용",
+            "미스 발렌타인",
+            "버터우스 3세",
+            "불곰",
+            "빅토리",
+            "사랑전도사 젠투",
+            "성기사 샬롯",
+            "수셈이",
+            "시리안 레인",
+            "아마데우스최",
+            "아이 쓰께끼",
+            "진희",
+            "철도왕 길버트",
+            "캡틴 설리반",
+            "크리즈",
         ],
     }
 
@@ -222,12 +244,16 @@ class ChatAlertSelectView(discord.ui.View):
     ):
         await self.edit_subscribe(interaction, button)
 
-    @discord.ui.button(label="이세계아이돌", style=discord.ButtonStyle.green)
+    @discord.ui.button(label="이세돌", style=discord.ButtonStyle.green)
     async def isedol(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.edit_subscribe(interaction, button)
 
-    @discord.ui.button(label="고정 멤버", style=discord.ButtonStyle.green)
+    @discord.ui.button(label="고멤", style=discord.ButtonStyle.green)
     async def gomem(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.edit_subscribe(interaction, button)
+
+    @discord.ui.button(label="교멤", style=discord.ButtonStyle.green)
+    async def gyomem(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.edit_subscribe(interaction, button)
 
 
@@ -258,7 +284,9 @@ class Settings(commands.Cog):
 
         if info is None:
             if none:
-                await interaction.edit_original_response(content="구독 정보가 존재하지 않습니다.")
+                await interaction.edit_original_response(
+                    content="구독 정보가 존재하지 않습니다."
+                )
                 return None
             else:
                 return webhook, {
@@ -290,7 +318,7 @@ class Settings(commands.Cog):
             )
 
         await interaction.response.send_message(
-            f"[여기](<https://wakscord.xyz/?make={webhook.id}/{webhook.token}>)에서 설정을 변경할 수 있어요.",
+            f"[여기](<https://old.wakscord.xyz/?make={webhook.id}/{webhook.token}>)에서 설정을 변경할 수 있어요.",
             ephemeral=True,
         )
 
@@ -325,7 +353,9 @@ class Settings(commands.Cog):
         webhook, info = await self.get_info(interaction, none=False)
         view = MemberSelectView()
 
-        await interaction.edit_original_response(content="어떤 멤버의 알림을 설정할까요?", view=view)
+        await interaction.edit_original_response(
+            content="어떤 멤버의 알림을 설정할까요?", view=view
+        )
 
         await view.wait()
 

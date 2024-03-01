@@ -15,7 +15,7 @@ class SpeedSetupMethod(Enum):
 
 
 class SubscribeItem(Enum):
-    BANGON_BANGJE = ["뱅온", "방제"]
+    BANGON_BANGJE = ["뱅온", "방제", "뱅종"]
     CHAT = [
         "우왁굳",
         "아이네",
@@ -64,7 +64,9 @@ class SpeedSetupView(discord.ui.View):
 
         return text
 
-    @discord.ui.button(label="한 채널에서 모든 알림 받기", row=0, style=discord.ButtonStyle.green)
+    @discord.ui.button(
+        label="한 채널에서 모든 알림 받기", row=0, style=discord.ButtonStyle.green
+    )
     async def all(self, interaction: discord.Interaction, button: discord.ui.Button):
         self._method = SpeedSetupMethod.ALL
         button.style = discord.ButtonStyle.green
@@ -112,6 +114,7 @@ class SpeedSetupView(discord.ui.View):
             discord.SelectOption(label="비챤", default=True),
             discord.SelectOption(label="뢴트게늄"),
             discord.SelectOption(label="천양"),
+            discord.SelectOption(label="빅토리"),
         ],
         row=1,
         min_values=1,
