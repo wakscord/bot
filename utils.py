@@ -42,7 +42,7 @@ async def fetch_subscribe_info(webhook: Webhook) -> Optional[dict]:
 
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            f"https://api.wakscord.xyz/hookInfo", json={"keys": [key]}
+            f"https://api.wakscord.com/hookInfo", json={"keys": [key]}
         ) as response:
             if response.status != 200:
                 return None

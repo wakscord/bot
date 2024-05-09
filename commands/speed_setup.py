@@ -158,7 +158,7 @@ class SpeedSetupView(discord.ui.View):
         )
 
         await self.session.post(
-            "https://api.wakscord.xyz/subscribe",
+            "https://api.wakscord.com/subscribe",
             json={
                 "url": webhook.url,
                 "subs": data,

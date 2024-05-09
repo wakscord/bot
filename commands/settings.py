@@ -98,7 +98,7 @@ class AlertSelectView(discord.ui.View):
 
         async with aiohttp.ClientSession() as session:
             await session.post(
-                "https://api.wakscord.xyz/subscribe",
+                "https://api.wakscord.com/subscribe",
                 json={
                     "url": self.webhook.url,
                     "subs": self.subs,
@@ -226,7 +226,7 @@ class ChatAlertSelectView(discord.ui.View):
 
         async with aiohttp.ClientSession() as session:
             await session.post(
-                "https://api.wakscord.xyz/subscribe",
+                "https://api.wakscord.com/subscribe",
                 json={
                     "url": self.webhook.url,
                     "subs": self.subs,
@@ -318,7 +318,7 @@ class Settings(commands.Cog):
             )
 
         await interaction.response.send_message(
-            f"[여기](<https://app.wakscord.xyz/waktaverse?make={webhook.id}/{webhook.token}>)에서 설정을 변경할 수 있어요.",
+            f"[여기](<https://app.wakscord.com/waktaverse?make={webhook.id}/{webhook.token}>)에서 설정을 변경할 수 있어요.",
             ephemeral=True,
         )
 

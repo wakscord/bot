@@ -20,7 +20,7 @@ class Chat(commands.Cog):
             if self.members is None:
                 async with aiohttp.ClientSession() as session:
                     async with session.get(
-                        "https://api.wakscord.xyz/members"
+                        "https://api.wakscord.com/members"
                     ) as response:
                         self.members = await response.json()
 
@@ -45,7 +45,7 @@ class Chat(commands.Cog):
 
         async with aiohttp.ClientSession() as session:
             await session.post(
-                "https://api.wakscord.xyz/subscribe",
+                "https://api.wakscord.com/subscribe",
                 json={
                     "url": webhook.url,
                     "subs": subs,

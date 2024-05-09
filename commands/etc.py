@@ -46,7 +46,7 @@ class Etc(commands.Cog):
         """
 
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.wakscord.xyz/bangon") as resp:
+            async with session.get("https://api.wakscord.com/bangon") as resp:
                 data = await resp.json()
 
         embed = discord.Embed(

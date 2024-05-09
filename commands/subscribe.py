@@ -82,7 +82,7 @@ class Subscribe(commands.Cog):
         )
 
         await interaction.edit_original_response(
-            content=f"[여기](<https://app.wakscord.xyz/waktaverse?make={webhook.id}/{webhook.token}>)에서 구독을 진행해주세요!",
+            content=f"[여기](<https://app.wakscord.com?make={webhook.id}/{webhook.token}>)에서 구독을 진행해주세요!",
             view=None,
         )
 
