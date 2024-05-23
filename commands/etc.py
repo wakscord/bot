@@ -22,6 +22,17 @@ class Etc(commands.Cog):
 
         await interaction.response.send_message(random.choice(dinner))
 
+    @app_commands.command(name="점메추")
+    async def refresh(self, interaction: discord.Interaction):
+        """
+        점심 메뉴를 추천해줍니다.
+        """
+
+        with open("./dinner.txt", "r", encoding="utf-8") as f:
+            dinner = f.read().split("\n")
+
+        await interaction.response.send_message(random.choice(dinner))
+
     @app_commands.command(name="결정장애")
     @app_commands.describe(option1="첫번째", option2="두번째")
     async def random_choice(
