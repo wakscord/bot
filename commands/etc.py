@@ -12,7 +12,7 @@ class Etc(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="저메추")
-    async def refresh(self, interaction: discord.Interaction):
+    async def refresh_dinner(self, interaction: discord.Interaction):
         """
         저녁 메뉴를 추천해줍니다.
         """
@@ -23,7 +23,7 @@ class Etc(commands.Cog):
         await interaction.response.send_message(random.choice(dinner))
 
     @app_commands.command(name="점메추")
-    async def refresh(self, interaction: discord.Interaction):
+    async def refresh_lunch(self, interaction: discord.Interaction):
         """
         점심 메뉴를 추천해줍니다.
         """
